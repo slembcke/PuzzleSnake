@@ -14,12 +14,11 @@
 				<rect x="-100" y="-100" width="200" height="200" fill="#eeeeee"/>
 				<g id="tiles">
 				</g>
-				<polyline id="polyline" fill="none" stroke="lightblue"
+				<polyline id="snake" fill="none" stroke="lightblue"
 					stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
 				<g id="head">
 					<circle cx="0.25" cy="0.25" r="0.075" fill="darkblue"/>
 					<circle cx="0.25" cy="-0.25" r="0.075" fill="darkblue"/>
-					<!--<polygon fill="darkblue" points="0,0.25 0.25,0 0,-0.25" />-->
 				</g>
 			</g>
 		</svg>
@@ -40,6 +39,7 @@
 			
 			
 			Output = document.getElementById("output");
+			Board = document.getElementById("board");
 			
 			{
 				// Setup scale matrix.
@@ -50,8 +50,7 @@
 				var sx = w/size;
 				var sy = h/size;
 				
-				var board = document.getElementById("board");
-				board.setAttribute("transform", "matrix("+(sx)+", 0, 0, "+(-sy)+", "+(sx/2)+", "+(h - sy/2)+")");
+				Board.setAttribute("transform", "matrix("+(sx)+", 0, 0, "+(-sy)+", "+(sx/2)+", "+(h - sy/2)+")");
 			}
 			
 			Tiles = document.getElementById("tiles");
@@ -81,19 +80,25 @@
 				}
 			}
 			
+			PolylineProto = document.getElementById("snake");
+			PolylineProto.parentNode.removeChild(PolylineProto);
+			
+			HeadProto = document.getElementById("head");
+			HeadProto.parentNode.removeChild(HeadProto);
+			
 			function Snake(x, y){
-				this.head = [1, 0];
+				this.facing = [1, 0];
 				this.verts = [[x, y], [x, y]];
+				this.polyline = PolylineProto.cloneNode(true);
+				this.head = HeadProto.cloneNode(true);
 			}
 			
 			Snake.prototype.draw = function(){
-				var polyline = document.getElementById("polyline");
-				polyline.setAttribute("points", this.verts.join(" "));
+				this.polyline.setAttribute("points", this.verts.join(" "));
 				
-				var c = this.head[0], s = this.head[1];
+				var c = this.facing[0], s = this.facing[1];
 				var x = this.verts[0][0], y = this.verts[0][1];
-				var head = document.getElementById("head");
-				head.setAttribute("transform", "matrix("+c+", "+s+", "+s+", "+c+", "+x+", "+y+")")
+				this.head.setAttribute("transform", "matrix("+c+", "+s+", "+s+", "+c+", "+x+", "+y+")")
 			}
 			
 			Snake.prototype.pushVert = function(v, animationCompleted){
@@ -103,7 +108,7 @@
 				
 				var dx = x1 - x0, dy = y1 - y0;
 				var dist = Math.max(Math.abs(dx), Math.abs(dy));
-				this.head = [dx/dist, dy/dist];
+				this.facing = [dx/dist, dy/dist];
 				
 				var delay = 1.0/60.0;
 				var speed = 2.0;
@@ -125,9 +130,14 @@
 				animate(this);
 			}
 			
-			var snake = new Snake(3, 3);
+			Snake.prototype.addToBoard = function(){
+				Board.appendChild(this.polyline);
+				Board.appendChild(this.head);
+				this.draw();
+			}
 			
-			snake.draw();
+			var snake = new Snake(3, 3);
+			snake.addToBoard();
 			
 			(function Rec(verts){
 				var l = verts.length;
