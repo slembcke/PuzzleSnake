@@ -24,9 +24,6 @@
 			</g>
 		</svg>
 		
-		<p>Output:</p>
-		<div id="output">Output here.</div>
-		
 		<script>
 			SVGNS = "http://www.w3.org/2000/svg";
 			puzzle = {
@@ -85,7 +82,7 @@
 			}
 			
 			function Snake(x, y){
-				this.head = [0, -1];
+				this.head = [1, 0];
 				this.verts = [[x, y], [x, y]];
 			}
 			
@@ -99,10 +96,10 @@
 				head.setAttribute("transform", "matrix("+c+", "+s+", "+s+", "+c+", "+x+", "+y+")")
 			}
 			
-			Snake.prototype.pushVert = function(x1, y1){
-				console.log("Pushing: ("+x1+", "+y1+")");
+			Snake.prototype.pushVert = function(v, animationCompleted){
+				console.log(v);
 				var x0 = this.verts[0][0], y0 = this.verts[0][1];
-				this.verts.unshift([x0, y0]);
+				var x1 = v[0], y1 = v[1];
 				
 				var dx = x1 - x0, dy = y1 - y0;
 				var dist = Math.max(Math.abs(dx), Math.abs(dy));
@@ -120,34 +117,42 @@
 					if(t < 1.0){
 						window.setTimeout(animate, delay, snake);
 					} else {
-						console.log("Done");
+						snake.verts.unshift(v);
+						if(animationCompleted) animationCompleted();
 					}
 				}
 				
 				animate(this);
 			}
 			
-//			var snake = {
-//				head: [0,-1],
-//				tail: [-1, 0],
-//				verts: [
-//					[0, 1],
-//					[0, 2],
-//					[2, 2],
-//					[2, 1],
-//					[3, 1],
-//					[3, 0],
-//					[4, 0],
-//					[4, 4],
-//					[0, 4],
-//					[0, 3],
-//					[3, 3],
-//				],
-//			}
 			var snake = new Snake(3, 3);
 			
 			snake.draw();
-			snake.pushVert(0, 3);
+			
+			var verts = [
+				[0, 1],
+				[0, 2],
+				[2, 2],
+				[2, 1],
+				[3, 1],
+				[3, 0],
+				[4, 0],
+				[4, 4],
+				[0, 4],
+				[0, 3],
+//				[3, 3],
+			];
+			
+			function Do(verts){
+				var l = verts.length;
+				if(l){
+					snake.pushVert(verts[l - 1], function(){
+						Do(verts.slice(0, l - 1));
+					});
+				}
+			}
+			Do(verts);
+			
 		</script>
 	</body>
 </html>
