@@ -16,6 +16,11 @@
 				</g>
 				<polyline id="polyline" fill="none" stroke="lightblue"
 					stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+				<g id="head">
+					<circle cx="0.25" cy="0.25" r="0.075" fill="darkblue"/>
+					<circle cx="0.25" cy="-0.25" r="0.075" fill="darkblue"/>
+					<!--<polygon fill="darkblue" points="0,0.25 0.25,0 0,-0.25" />-->
+				</g>
 			</g>
 		</svg>
 		
@@ -79,24 +84,35 @@
 				}
 			}
 			
-			var verts = [
-				[3, 3],
-				[0, 3],
-				[0, 4],
-				[4, 4],
-				[4, 0],
-				[3, 0],
-				[3, 1],
-				[2, 1],
-				[2, 2],
-				[0, 2],
-				[0, 1],
-			];
+			var snake = {
+				head: [0,-1],
+				tail: [-1, 0],
+				verts: [
+					[0, 1],
+					[0, 2],
+					[2, 2],
+					[2, 1],
+					[3, 1],
+					[3, 0],
+					[4, 0],
+					[4, 4],
+					[0, 4],
+					[0, 3],
+					[3, 3],
+				],
+			}
 			
-			var polyline = document.getElementById("polyline");
-			polyline.setAttribute("points", verts.join(" "));
+			function DrawSnake(snake){
+				var polyline = document.getElementById("polyline");
+				polyline.setAttribute("points", snake.verts.join(" "));
+				
+				var c = snake.head[0], s = snake.head[1];
+				var x = snake.verts[0][0], y = snake.verts[0][1];
+				var head = document.getElementById("head");
+				head.setAttribute("transform", "matrix("+c+", "+s+", "+s+", "+c+", "+x+", "+y+")")
+			}
 			
-//			tiles.setAttribute("transform", "matrix(2,0,0,2,0,0)");
+			DrawSnake(snake);
 		</script>
 	</body>
 </html>
