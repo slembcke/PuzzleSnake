@@ -1,0 +1,102 @@
+<html>
+	<head>
+		<title>Game</title>
+	</head>
+	<body>
+		<style>
+			#tiles {
+				rx=0.5;
+				ry=0.5;
+			}
+		</style>
+		<svg id="svg" width="320" height="320">
+			<g id="board">
+				<rect x="-100" y="-100" width="200" height="200" fill="#eeeeee"/>
+				<g id="tiles">
+				</g>
+				<polyline id="polyline" fill="none" stroke="lightblue"
+					stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+			</g>
+		</svg>
+		
+		<p>Output:</p>
+		<div id="output">Output here.</div>
+		
+		<script>
+			SVGNS = "http://www.w3.org/2000/svg";
+			puzzle = {
+				size: 5,
+				
+				tiles: [
+					[1,1,1,0,0],
+					[0,1,0,0,0],
+					[0,0,0,1,0],
+					[0,0,0,0,0],
+					[0,0,0,0,0],
+				],
+			};
+			
+			
+			Output = document.getElementById("output");
+			
+			{
+				// Setup scale matrix.
+				var svg = document.getElementById("svg");
+				var size = puzzle.size;
+				var w = svg.width.baseVal.value;
+				var h = svg.height.baseVal.value;
+				var sx = w/size;
+				var sy = h/size;
+				
+				var board = document.getElementById("board");
+				board.setAttribute("transform", "matrix("+(sx)+", 0, 0, "+(-sy)+", "+(sx/2)+", "+(h - sy/2)+")");
+			}
+			
+			Tiles = document.getElementById("tiles");
+			
+			function AddTile(x, y){
+				var bevel = 0.1;
+				var inset = 0.1;
+				
+				var s = 1.0 - 2.0*inset;
+				var hs = 0.5*s;
+				
+				var rect = document.createElementNS(SVGNS, "rect");
+				rect.x.baseVal.value = -hs;
+				rect.y.baseVal.value = -hs;
+				rect.width.baseVal.value = s;
+				rect.height.baseVal.value = s;
+				rect.rx.baseVal.value = bevel;
+				rect.ry.baseVal.value = bevel;
+				rect.setAttribute("fill", "darkgrey");
+				rect.setAttribute("transform", "matrix(1, 0, 0, 1, " + x + ", "+ y + ")");
+				Tiles.appendChild(rect);
+			}
+			
+			for(var y=0; y<puzzle.size; y++){
+				for(var x=0; x<puzzle.size; x++){
+					if(puzzle.tiles[y][x]) AddTile(x, y);
+				}
+			}
+			
+			var verts = [
+				[3, 3],
+				[0, 3],
+				[0, 4],
+				[4, 4],
+				[4, 0],
+				[3, 0],
+				[3, 1],
+				[2, 1],
+				[2, 2],
+				[0, 2],
+				[0, 1],
+			];
+			
+			var polyline = document.getElementById("polyline");
+			polyline.setAttribute("points", verts.join(" "));
+			
+//			tiles.setAttribute("transform", "matrix(2,0,0,2,0,0)");
+		</script>
+	</body>
+</html>
