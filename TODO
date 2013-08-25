@@ -4,6 +4,5 @@
 * Make the game as a whole an object instance.
 * Check if the level is completed.
 * Play multiple games.
-* Undo support.
-* Reset support.
+* Undo support. (Click on a tile to rewind to that point).
 * Rotate the head before moving forwards.

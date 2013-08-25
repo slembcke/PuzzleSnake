@@ -20,6 +20,7 @@ function MakeProtoTypeNode(id){
 }
 
 TileProto = MakeProtoTypeNode("tile");
+SpaceProto = MakeProtoTypeNode("space");
 TilesProto = MakeProtoTypeNode("tiles");
 PolylineProto = MakeProtoTypeNode("snake");
 HeadProto = MakeProtoTypeNode("head");
@@ -47,12 +48,6 @@ function SetBoardSize(){
 window.onresize = SetBoardSize;
 SetBoardSize();
 			
-function AddTile(x, y){
-	var tile = TileProto.cloneNode(true);
-	tile.setAttribute("transform", "matrix(1, 0, 0, 1, "+(x)+", "+(y)+")");
-	Tiles.appendChild(tile);
-}
-
 function CheckTile(x, y){
 	return (
 		0 <= x && x < Puzzle.size &&
@@ -63,7 +58,10 @@ function CheckTile(x, y){
 
 for(var y=0; y<Puzzle.size; y++){
 	for(var x=0; x<Puzzle.size; x++){
-		if(Puzzle.tiles[y][x]) AddTile(x, y);
+		var solid = Puzzle.tiles[y][x];
+		var tile = (solid ? TileProto : SpaceProto).cloneNode(true);
+		tile.setAttribute("transform", "matrix(1, 0, 0, 1, "+(x)+", "+(y)+")");
+		Tiles.appendChild(tile);
 	}
 }
 
