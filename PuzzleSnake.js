@@ -11,22 +11,23 @@ Puzzle = {
 	]
 };
 
-Board = document.getElementById("board");
-function MakeProtoTypeNode(id){
-	var node = document.getElementById(id);
-	node.parentNode.removeChild(node);
-	
+function MakeProto(id, deep){
+	var node = document.getElementById(id).cloneNode(deep);
+	node.removeAttribute("id");
 	return node;
 }
 
-TileProto = MakeProtoTypeNode("tile");
-SpaceProto = MakeProtoTypeNode("space");
-TilesProto = MakeProtoTypeNode("tiles");
-PolylineProto = MakeProtoTypeNode("snake");
-HeadProto = MakeProtoTypeNode("head");
+Protos = {
+	board: MakeProto("board", false),
+	openTile: MakeProto("openTile", false),
+	closedTile: MakeProto("closedTile", false),
+	snake: MakeProto("snake", false),
+	head: MakeProto("head", true),
+	arrow: MakeProto("arrow", false),
+};
 
-// TODO move this
-Tiles = Board.appendChild(TilesProto.cloneNode(true));
+SVG = document.getElementById("svg");
+Board = SVG.appendChild(board.cloneNode(false));
 
 function SetBoardSize(){
 	var size = Math.min(document.body.clientWidth, document.body.clientHeight);
@@ -34,9 +35,8 @@ function SetBoardSize(){
 	var tiles = Puzzle.size;
 	var scale = size/tiles;
 	
-	var svg = document.getElementById("svg");
-	svg.setAttribute("width", size);
-	svg.setAttribute("height", size);
+	SVG.setAttribute("width", size);
+	SVG.setAttribute("height", size);
 	
 	Board.setAttribute("transform", "matrix("+(scale)+", 0, 0, "+(-scale)+", "+(scale/2)+", "+(size - scale/2)+")");
 	
@@ -59,9 +59,9 @@ function CheckTile(x, y){
 for(var y=0; y<Puzzle.size; y++){
 	for(var x=0; x<Puzzle.size; x++){
 		var solid = Puzzle.tiles[y][x];
-		var tile = (solid ? TileProto : SpaceProto).cloneNode(true);
+		var tile = (solid ? Protos.closedTile : Protos.openTile).cloneNode(true);
 		tile.setAttribute("transform", "matrix(1, 0, 0, 1, "+(x)+", "+(y)+")");
-		Tiles.appendChild(tile);
+		Board.appendChild(tile);
 	}
 }
 
@@ -69,8 +69,8 @@ Snake = (function(){
 	function This(startPos){
 		this.facing = [1, 0];
 		this.verts = [startPos, startPos.slice(0)];
-		this.polyline = PolylineProto.cloneNode(true);
-		this.head = HeadProto.cloneNode(true);
+		this.polyline = Protos.snake.cloneNode(true);
+		this.head = Protos.head.cloneNode(true);
 	}
 	
 	This.prototype.headPos = function(){
