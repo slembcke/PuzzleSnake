@@ -215,38 +215,22 @@ PrintSolution2(struct Move *moves)
 	printf("Start at (%d, %d). Steps: %d. Choices if given the start: %d.\n", moves->x, moves->y, steps, choices - steps);
 }
 
-//struct ThreadContext {
-//	int size;
-//	int blockers;
-//};
-//
-//static void *
-//Thread(struct ThreadContext *ctx)
-//{
-//	int unsolved;
-//	Row *board = FindPuzzle(ctx->size, ctx->blockers, &unsolved);
-//	PrintBoard(ctx->size, board);
-//	printf("\n");
-//	
-//	struct Move *moves = Solve(ctx->size, board);
-//	PrintSolution(moves);
-//	FreeMoves(moves);
-//	free(board);
-//	
-//	printf("Tried %d unsolvable puzzles.", unsolved);
-//	
-//	return NULL;
-//}
-//
-//static void
-//RunThreads(const int count, const int size, const int blockers)
-//{
-//	struct ThreadContext ctx = {size, blockers};
-//	
-//	pthread_t thr[count];
-//	for(int i=0; i<count; i++) pthread_create(thr + i, NULL, (void *)Thread, &ctx);
-//	for(int i=0; i<count; i++) pthread_join(thr[i], NULL);
-//}
+static void
+PrintAsJS(const int size, const Row *board, struct Move *moves)
+{
+	printf("\t\t{puzz:\"");
+	
+	for(int i=size-1; i>=0; i--){
+		for(int j=0; j<size; j++){
+			printf("%c", Get(board, j, i) ? '1' : '0');
+		}
+		
+		if(i > 0) printf(",");
+	}
+	printf("\", ");
+	
+	printf("start:[%d, %d]},\n", moves->x, moves->y);
+}
 
 static void
 RunDispatch(const int count, const int size, const int blockers)
@@ -271,6 +255,10 @@ RunDispatch(const int count, const int size, const int blockers)
 				printf("\n");
 				
 				struct Move *moves = Solve(size, board);
+				
+				PrintAsJS(size, board, moves);
+				printf("\n");
+				
 				PrintSolution(moves);
 				FreeMoves(moves);
 				free(board);
@@ -294,8 +282,6 @@ main(int argc, char **argv)
 	const int blockers = atoi(argv[3]);
 	
 	RunDispatch(count, size, blockers);
-//	RunThreads(count, size, blockers);
-//	FindPuzzle(size, blockers);
 	
 	return EX_OK;
 }

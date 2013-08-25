@@ -21,13 +21,16 @@ Protos = {
 	closedTile: MakeProto("closedTile", false),
 	snake: MakeProto("snake", false),
 	head: MakeProto("head", true),
-	arrow: MakeProto("arrow", false),
+	arrow: MakeProto("arrow", false)
 };
 
 Puzzle = (function(){
-	function This(size, tiles){
-		this.size = size;
-		this.tiles = tiles;
+	function This(str){
+		this.tiles = str.split(",").map(function(row){
+			return row.split("").map(function(e){return (e == "1");});
+		});
+		
+		this.size = this.tiles.length;
 	}
 	
 	This.prototype = {
@@ -194,7 +197,6 @@ Game = (function(){
 			var y = this.puzzle.size - 1 - Math.floor(my/scale);
 			
 			if(!this.snake){
-				// TODO use method
 				if(!this.puzzle.tiles[y][x]){
 					this.addSnake(x, y);
 				}
@@ -220,13 +222,9 @@ Game = (function(){
 	return This;
 })();
 
-var puzzle = new Puzzle(5, [
-	[1,1,1,0,0],
-	[0,1,0,0,0],
-	[0,0,0,1,0],
-	[0,0,0,0,0],
-	[0,0,0,0,0]
-]);
+var arr = Puzzles.easy;
+var i = Math.floor(Math.random()*arr.length);
+var puzzle = new Puzzle(arr[i].puzz);
 
 var game = new Game(puzzle);
 game.present();
