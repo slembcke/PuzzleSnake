@@ -2,11 +2,13 @@
 	<head>
 		<title>Game</title>
 	</head>
-	<body>
-		<svg id="svg" width="320" height="320">
+	<body style="margin:0px;">
+		<svg id="svg">
 			<g id="board">
 				<rect x="-100" y="-100" width="200" height="200" fill="aliceblue"/>
-				<g id="tiles"/>
+				<g id="tiles">
+					<rect id="tile" x="-0.4" y="-0.4" width="0.8" height="0.8" rx="0.1" ry="0.1" fill="darkcyan"/>
+				</g>
 				<polyline id="snake" fill="none" stroke="cornflowerblue"
 					stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
 				<g id="head">
@@ -16,7 +18,6 @@
 			</g>
 		</svg>
 		
-		<script type="text/javascript" src="coffee-script.js"></script>
 		<script type="text/javascript" src="PuzzleSnake.js"></script>
 	</body>
 </html>
