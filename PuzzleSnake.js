@@ -9,30 +9,6 @@ function SetViewport(){
 SetViewport();
 window.onresize = SetViewport;
 
-Puzzle = {
-	size: 5,
-	
-	tiles: [
-		[1,1,1,0,0],
-		[0,1,0,0,0],
-		[0,0,0,1,0],
-		[0,0,0,0,0],
-		[0,0,0,0,0]
-	],
-	
-	// getTile(x, y)
-	// setTile(x, y)
-};
-
-// TODO should be a puzzle method.
-function CheckTile(x, y){
-	return (
-		0 <= x && x < Puzzle.size &&
-		0 <= y && y < Puzzle.size &&
-		!Puzzle.tiles[y][x]
-	);
-}
-
 function MakeProto(id, deep){
 	var node = document.getElementById(id).cloneNode(deep);
 	node.removeAttribute("id");
@@ -47,6 +23,30 @@ Protos = {
 	head: MakeProto("head", true),
 	arrow: MakeProto("arrow", false),
 };
+
+Puzzle = (function(){
+	function This(size, tiles){
+		this.size = size;
+		this.tiles = tiles;
+	}
+	
+	This.prototype = {
+		getTile: function(x, y){
+			// Check that it's out of bounds or a filled tile.
+			return (
+				!(0 <= x && x < this.size) ||
+				!(0 <= y && y < this.size) ||
+				this.tiles[y][x]
+			);
+		},
+		
+		setTile: function(x, y, value){
+			this.tiles[y][x] = value;
+		}
+	}
+	
+	return This;
+})();
 
 Game = (function(){
 	function This(puzzle){
@@ -110,7 +110,7 @@ Game = (function(){
 			var x = head[0], y = head[1];
 			
 			var arr = new Array();
-			function Check(x, y, dx, dy){ if(CheckTile(x + dx, y + dy)) arr.push([dx, dy]); }
+			function Check(x, y, dx, dy){ if(!this.puzzle.getTile(x + dx, y + dy)) arr.push([dx, dy]); }
 			
 			Check(x, y,  1,  0);
 			Check(x, y,  0,  1);
@@ -162,12 +162,13 @@ Game = (function(){
 			var head = this.headPos();
 			var dx = dir[0], dy = dir[1];
 			
+			var puzzle = this.puzzle;
 			// function returns false if the next tile is blocked.
 			// Otherwise it returns the furthest open tile in that direction.
 			var stop = (function advance(x, y){
-				if(CheckTile(x, y)){
+				if(!puzzle.getTile(x, y)){
 					// Mark the current tile as closed.
-					Puzzle.tiles[y][x] = true;
+					puzzle.setTile(x, y, true);
 					// Recursively look for the endpoint.
 					var stop = advance(x + dx, y + dy);
 					return (stop ? stop : [x, y]);
@@ -219,7 +220,15 @@ Game = (function(){
 	return This;
 })();
 
-var game = new Game(Puzzle);
+var puzzle = new Puzzle(5, [
+	[1,1,1,0,0],
+	[0,1,0,0,0],
+	[0,0,0,1,0],
+	[0,0,0,0,0],
+	[0,0,0,0,0]
+]);
+
+var game = new Game(puzzle);
 game.present();
 game.board.onclick = function(event){
 	game.click(event.clientX, event.clientY);
