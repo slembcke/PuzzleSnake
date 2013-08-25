@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<title>Game</title>
+	</head>
+	<body>
+		<svg id="svg" width="320" height="320">
+			<g id="board">
+				<rect x="-100" y="-100" width="200" height="200" fill="aliceblue"/>
+				<g id="tiles"/>
+				<polyline id="snake" fill="none" stroke="cornflowerblue"
+					stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+				<g id="head">
+					<circle cx="0.25" cy="0.25" r="0.075" fill="darkblue"/>
+					<circle cx="0.25" cy="-0.25" r="0.075" fill="darkblue"/>
+				</g>
+			</g>
+		</svg>
+		
+		<script type="text/javascript" src="coffee-script.js"></script>
+		<script type="text/javascript" src="PuzzleSnake.js"></script>
+	</body>
+</html>
