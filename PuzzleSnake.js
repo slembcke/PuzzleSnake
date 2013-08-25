@@ -1,3 +1,4 @@
+SVGNS = "http://www.w3.org/2000/svg"
 SVG = document.getElementById("svg");
 
 function SetViewport(){
@@ -128,6 +129,7 @@ Game = (function(){
 			return arr;
 		},
 		
+		// Called after input to add the arrows or auto-advance.
 		checkMove: function(animationCompleted){
 			var choices = this.checkDirections();
 			if(choices.length == 0){
@@ -141,6 +143,17 @@ Game = (function(){
 				this.move(choices[0], animationCompleted);
 			} else {
 				// TODO Show arrows
+				this.arrows = document.createElementNS(SVGNS, "g");
+				this.board.appendChild(this.arrows);
+				
+				var head = this.headPos();
+				var x = this.headPos()[0], y = this.headPos()[1];
+				choices.forEach(function(dir){
+					var arrow = this.arrows.appendChild(Protos.arrow.cloneNode(false));
+					var c = dir[0], s = dir[1];
+					arrow.setAttribute("transform", "matrix("+[c,s,-s,c,x,y]+")");
+				}, this);
+				
 				if(animationCompleted) animationCompleted.call(this);
 			}
 		},
@@ -196,8 +209,16 @@ Game = (function(){
 			
 			// If non-false, stop will contain the coord of the stoping point.
 			if(stop){
+				// Remove the old arrows.
+				if(this.arrows){
+					this.board.removeChild(this.arrows);
+					this.arrows = null;
+				}
+				
+				// Start the animation.
 				this.animateMove(stop, animationCompleted);
 			} else {
+				// Animation never actually ran, but still need to unlock it.
 				animationCompleted.call(this);
 			}
 		},
