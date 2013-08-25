@@ -67,7 +67,7 @@ Snake = (function(){
 		this.head = HeadProto.cloneNode(true);
 	}
 	
-	function headPos(){
+	This.prototype.headPos = function(){
 		return this.verts[0];
 	}
 	
@@ -80,7 +80,6 @@ Snake = (function(){
 	}
 	
 	This.prototype.pushVert = function(v, animationCompleted){
-		console.log(v);
 		var x0 = this.verts[0][0], y0 = this.verts[0][1];
 		var x1 = v[0], y1 = v[1];
 		
@@ -106,6 +105,32 @@ Snake = (function(){
 		})(this);
 	}
 	
+	This.prototype.move = function(dir){
+		var size = Puzzle.size;
+		var head = this.headPos();
+		var dx = dir[0], dy = dir[1];
+		
+		var stop = (function advance(snake, x, y){
+			if(
+				0 <= x && x < size &&
+				0 <= y && y < size &&
+				!Puzzle.tiles[y][x]
+			){
+				console.log("Non-blocked tile: " + [x, y]);
+				// Recursively look for the endpoint.
+				var stop = advance(snake, x + dx, y + dy);
+				return (stop ? stop : [x, y]);
+			} else {
+				// The current tile blocked.
+				console.log("Blocked tile: " + [x, y]);
+				return false;
+			}
+		})(snake, head[0] + dx, head[1] + dy);
+		
+		// If non-false, stop will contain the coord of the stoping point.
+		if(stop) this.pushVert(stop);
+	}
+	
 	This.prototype.addToBoard = function(){
 		Board.appendChild(this.polyline);
 		Board.appendChild(this.head);
@@ -126,6 +151,7 @@ ClickHandler = function(pos){
 	if(!Puzzle.tiles[y][x]){
 		Snake = new Snake(pos);
 		Snake.addToBoard();
+		Snake.move([-1, 0]);
 		
 		ClickHandler = function(pos){
 			console.log(pos);
