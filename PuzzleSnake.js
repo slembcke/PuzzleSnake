@@ -105,30 +105,38 @@ Snake = (function(){
 		})(this);
 	}
 	
-	This.prototype.move = function(dir){
+	This.prototype.move = function(dir, animation_finished){
+		if(dir[0] == 0 && dir[1] == 0) return;
+		
 		var size = Puzzle.size;
 		var head = this.headPos();
 		var dx = dir[0], dy = dir[1];
 		
+		// function returns false if the next tile is blocked.
+		// Otherwise it returns the furthest open tile in that direction.
 		var stop = (function advance(snake, x, y){
 			if(
 				0 <= x && x < size &&
 				0 <= y && y < size &&
 				!Puzzle.tiles[y][x]
 			){
-				console.log("Non-blocked tile: " + [x, y]);
+				// Mark the current tile as closed.
+				Puzzle.tiles[y][x] = true;
 				// Recursively look for the endpoint.
 				var stop = advance(snake, x + dx, y + dy);
 				return (stop ? stop : [x, y]);
 			} else {
 				// The current tile blocked.
-				console.log("Blocked tile: " + [x, y]);
 				return false;
 			}
 		})(snake, head[0] + dx, head[1] + dy);
 		
 		// If non-false, stop will contain the coord of the stoping point.
-		if(stop) this.pushVert(stop);
+		if(stop){
+			this.pushVert(stop, animation_finished);
+		} else {
+			animation_finished();
+		}
 	}
 	
 	This.prototype.addToBoard = function(){
@@ -145,19 +153,29 @@ Board.onclick = function(event){
 	if(ClickHandler) ClickHandler(pos);
 };
 
-ClickHandler = function(pos){
+function FirstClick(pos){
 	var x = pos[0], y = pos[1];
 	
 	if(!Puzzle.tiles[y][x]){
 		Snake = new Snake(pos);
 		Snake.addToBoard();
-		Snake.move([-1, 0]);
 		
-		ClickHandler = function(pos){
-			console.log(pos);
-		}
+		ClickHandler = MoveClick;
 	}
 }
+
+function MoveClick(pos){
+	var head = Snake.headPos();
+	var dx = (pos[0] - head[0]), dy = (pos[1] - head[1]);
+	
+	if(dx == 0 || dy == 0){
+		ClickHandler = null;
+		var max = Math.max(Math.abs(dx), Math.abs(dy));
+		Snake.move([dx/max, dy/max], function(){ ClickHandler = MoveClick; });
+	}
+}
+
+ClickHandler = FirstClick;
 
 //(function Rec(verts){
 //	var l = verts.length;
