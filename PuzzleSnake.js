@@ -88,7 +88,7 @@ Snake = (function(){
 		this.facing = [dx/dist, dy/dist];
 		
 		var delay = 1.0/60.0;
-		var speed = 4.0;
+		var speed = 16.0;
 		var t = 0.0;
 		(function animate(snake){
 			// TODO better time based animation here.
