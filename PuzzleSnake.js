@@ -53,6 +53,14 @@ function AddTile(x, y){
 	Tiles.appendChild(tile);
 }
 
+function CheckTile(x, y){
+	return (
+		0 <= x && x < Puzzle.size &&
+		0 <= y && y < Puzzle.size &&
+		!Puzzle.tiles[y][x]
+	);
+}
+
 for(var y=0; y<Puzzle.size; y++){
 	for(var x=0; x<Puzzle.size; x++){
 		if(Puzzle.tiles[y][x]) AddTile(x, y);
@@ -79,7 +87,21 @@ Snake = (function(){
 		this.head.setAttribute("transform", "matrix("+c+", "+s+", "+s+", "+c+", "+x+", "+y+")")
 	}
 	
-	This.prototype.pushVert = function(v, animationCompleted){
+	This.prototype.checkDirections = function(){
+		var head = this.headPos();
+		var x = head[0], y = head[1];
+		
+		var arr = new Array();
+		function Check(x, y, dx, dy){ if(CheckTile(x + dx, y + dy)) arr.push([dx, dy]); }
+		
+		Check(x, y,  1,  0);
+		Check(x, y,  0,  1);
+		Check(x, y, -1,  0);
+		Check(x, y,  0, -1);
+		return arr;
+	}
+	
+	This.prototype.animateMove = function(v, animationCompleted){
 		var x0 = this.verts[0][0], y0 = this.verts[0][1];
 		var x1 = v[0], y1 = v[1];
 		
@@ -88,10 +110,10 @@ Snake = (function(){
 		this.facing = [dx/dist, dy/dist];
 		
 		var delay = 1.0/60.0;
-		var speed = 16.0;
+		var speed = 4.0;
 		var t = 0.0;
 		(function animate(snake){
-			// TODO better time based animation here.
+			// TODO better time based animation here?
 			t = Math.min(1.0, t + speed*delay/dist);
 			
 			snake.verts[0] = [x0 + t*dx, y0 + t*dy];
@@ -100,46 +122,55 @@ Snake = (function(){
 				window.setTimeout(animate, delay, snake);
 			} else {
 				snake.verts.unshift(v);
-				if(animationCompleted) animationCompleted();
+				
+				var choices = snake.checkDirections();
+				if(choices.length == 0){
+					console.log("Game Over!");
+				} else if(choices.length == 1){
+					// Only one choice. Take it automatically.
+					snake.move(choices[0], animationCompleted);
+				} else {
+					// Show arrows
+					if(animationCompleted) animationCompleted();
+				}
 			}
 		})(this);
 	}
 	
-	This.prototype.move = function(dir, animation_finished){
+	This.prototype.move = function(dir, animationCompleted){
 		if(dir[0] == 0 && dir[1] == 0) return;
 		
-		var size = Puzzle.size;
 		var head = this.headPos();
 		var dx = dir[0], dy = dir[1];
 		
 		// function returns false if the next tile is blocked.
 		// Otherwise it returns the furthest open tile in that direction.
-		var stop = (function advance(snake, x, y){
-			if(
-				0 <= x && x < size &&
-				0 <= y && y < size &&
-				!Puzzle.tiles[y][x]
-			){
+		var stop = (function advance(x, y){
+			if(CheckTile(x, y)){
 				// Mark the current tile as closed.
 				Puzzle.tiles[y][x] = true;
 				// Recursively look for the endpoint.
-				var stop = advance(snake, x + dx, y + dy);
+				var stop = advance(x + dx, y + dy);
 				return (stop ? stop : [x, y]);
 			} else {
 				// The current tile blocked.
 				return false;
 			}
-		})(snake, head[0] + dx, head[1] + dy);
+		})(head[0] + dx, head[1] + dy);
 		
 		// If non-false, stop will contain the coord of the stoping point.
 		if(stop){
-			this.pushVert(stop, animation_finished);
+			this.animateMove(stop, animationCompleted);
 		} else {
-			animation_finished();
+			animationCompleted();
 		}
 	}
 	
 	This.prototype.addToBoard = function(){
+		var head = this.headPos();
+		// TODO Make a method for this.
+		Puzzle.tiles[head[1]][head[0]] = true;
+		
 		Board.appendChild(this.polyline);
 		Board.appendChild(this.head);
 		this.draw();
@@ -181,7 +212,7 @@ ClickHandler = FirstClick;
 //	var l = verts.length;
 //	if(!l) return;
 //	
-//	snake.pushVert(verts[l - 1], function(){
+//	snake.animateMove(verts[l - 1], function(){
 //		Rec(verts.slice(0, l - 1));
 //	});
 //})([
