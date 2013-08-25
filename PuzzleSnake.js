@@ -64,7 +64,12 @@ Game = (function(){
 	
 	This.prototype = {
 		setupBoard: function(){
+			var this_ = this;
 			this.board = Protos.board.cloneNode(false);
+			this.board.onclick = function(event){
+				this_.click(event.clientX, event.clientY);
+			}
+			
 			var s = this.puzzle.size;
 			var offset = (s-1)/s;
 			this.board.setAttribute("transform", "matrix("+[2/s, 0, 0, -2/s, -offset, offset]+")");
@@ -113,13 +118,31 @@ Game = (function(){
 			var x = head[0], y = head[1];
 			
 			var arr = new Array();
-			function Check(x, y, dx, dy){ if(!this.puzzle.getTile(x + dx, y + dy)) arr.push([dx, dy]); }
+			var this_ = this;
+			function Check(x, y, dx, dy){ if(!this_.puzzle.getTile(x + dx, y + dy)) arr.push([dx, dy]); }
 			
 			Check(x, y,  1,  0);
 			Check(x, y,  0,  1);
 			Check(x, y, -1,  0);
 			Check(x, y,  0, -1);
 			return arr;
+		},
+		
+		checkMove: function(animationCompleted){
+			var choices = this.checkDirections();
+			if(choices.length == 0){
+				console.log("Game Over!");
+				
+				// Check if the board is full.
+				this.dispose();
+				RandomGame();
+			} else if(choices.length == 1){
+				// Only one choice. Take it automatically.
+				this.move(choices[0], animationCompleted);
+			} else {
+				// TODO Show arrows
+				if(animationCompleted) animationCompleted.call(this);
+			}
 		},
 		
 		animateMove: function(v, animationCompleted){
@@ -144,17 +167,7 @@ Game = (function(){
 					window.setTimeout(animate, delay);
 				} else {
 					_this.verts.unshift(v);
-					
-					var choices = _this.checkDirections();
-					if(choices.length == 0){
-						console.log("Game Over!");
-					} else if(choices.length == 1){
-						// Only one choice. Take it automatically.
-						_this.move(choices[0], animationCompleted);
-					} else {
-						// Show arrows
-						if(animationCompleted) animationCompleted.call(_this);
-					}
+					_this.checkMove(animationCompleted);
 				}
 			})();
 		},
@@ -199,6 +212,7 @@ Game = (function(){
 			if(!this.snake){
 				if(!this.puzzle.tiles[y][x]){
 					this.addSnake(x, y);
+					this.checkMove();
 				}
 			} else {
 				var head = this.headPos();
@@ -216,18 +230,23 @@ Game = (function(){
 		
 		present: function(){
 			SVG.appendChild(this.board);
+		},
+		
+		dispose: function(){
+			SVG.removeChild(this.board);
 		}
 	}
 	
 	return This;
 })();
 
-var arr = Puzzles.easy;
-var i = Math.floor(Math.random()*arr.length);
-var puzzle = new Puzzle(arr[i].puzz);
-
-var game = new Game(puzzle);
-game.present();
-game.board.onclick = function(event){
-	game.click(event.clientX, event.clientY);
+function RandomGame(){
+	var arr = Puzzles.easy;
+	var i = Math.floor(Math.random()*arr.length);
+	var puzzle = new Puzzle(arr[i].puzz);
+	
+	var game = new Game(puzzle);
+	game.present();
 }
+
+RandomGame();

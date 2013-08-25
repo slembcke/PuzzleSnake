@@ -1,8 +1,5 @@
 * Show directional arrows.
-* Move forward automatically if there is only one choice.
 * Add arrow key support.
-* Make the game as a whole an object instance.
 * Check if the level is completed.
-* Play multiple games.
 * Undo support. (Click on a tile to rewind to that point).
 * Rotate the head before moving forwards.
