@@ -166,18 +166,17 @@ Game = (function(){
 			var dist = Math.max(Math.abs(dx), Math.abs(dy));
 			this.facing = [dx/dist, dy/dist];
 			
-			var delay = 1.0/60.0;
-			var speed = 4.0;
-			var t = 0.0;
+			var rate = 32.0/dist*1e-3;
+			var t0 = Date.now();
 			var _this = this;
 			(function animate(){
 				// TODO better time based animation here?
-				t = Math.min(1.0, t + speed*delay/dist);
+				t = Math.min(1.0, rate*(Date.now() - t0));
 				
 				_this.verts[0] = [x0 + t*dx, y0 + t*dy];
 				_this.drawSnake();
 				if(t < 1.0){
-					window.setTimeout(animate, delay);
+					window.setTimeout(animate, 1.0/60.0);
 				} else {
 					_this.verts.unshift(v);
 					_this.checkMove(animationCompleted);
