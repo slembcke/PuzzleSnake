@@ -264,6 +264,8 @@ RunDispatch(const int count, const int size, const int blockers)
 				free(board);
 				
 				printf("Tried %d unsolvable puzzles.\n\n\n", unsolved);
+				fflush(stdout);
+				
 				total_unsolved += unsolved;
 			});
 		});

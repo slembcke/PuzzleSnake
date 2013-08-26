@@ -262,7 +262,7 @@ Game = (function(){
 })();
 
 function RandomGame(){
-	var arr = Puzzles.easy;
+	var arr = Puzzles.extreme;
 	var i = Math.floor(Math.random()*arr.length);
 	var puzzle = new Puzzle(arr[i].puzz);
 	

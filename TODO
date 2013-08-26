@@ -1,4 +1,3 @@
-* Show directional arrows.
 * Add arrow key support.
 * Check if the level is completed.
 * Undo support. (Click on a tile to rewind to that point).
